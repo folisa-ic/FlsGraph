@@ -1,7 +1,5 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<time.h>
 #include"head.h"
+#include<time.h>
 
 extern Vertex_Set_P Vertex_Set[];
 extern Edge_Set_P Edge_Set[];

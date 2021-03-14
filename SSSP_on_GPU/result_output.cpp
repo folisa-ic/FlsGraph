@@ -1,6 +1,5 @@
-#include <string.h>
-#include <stdlib.h>
 #include "head.h"
+#include <string.h>
 
 // 创建文件输出结果
 void result_output(const char* path, const char* filename, Vertex_Set_P* Vertex_Set)

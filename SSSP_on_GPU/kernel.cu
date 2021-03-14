@@ -2,8 +2,6 @@
 #include "device_launch_parameters.h"
 #include "device_functions.h"
 #include <cuda.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <time.h>
 #include "head.h"
 

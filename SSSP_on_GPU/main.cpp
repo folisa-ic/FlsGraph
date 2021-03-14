@@ -1,6 +1,6 @@
 #pragma once
 #include"head.h"
-#include <stdio.h>
+
 /*
 真正有意义的注释：
 数据预处理阶段可以使用OpenMP来加速，但测试效果不佳
@@ -35,6 +35,7 @@ int main()
 	SSSP_on_GPU(Vertex_Set, Edge_Set, Msg_Set, source_id);
 	extern float GPU_time_all;
 	printf("GPU time: %fms\n", GPU_time_all);
+	result_output("C:\\Users\\great\\Desktop\\", "result_GPU", Vertex_Set);
 	SSSP_on_CPU(source_id);
-	result_output("C:\\Users\\great\\Desktop\\", "result.txt", Vertex_Set);
+	result_output("C:\\Users\\great\\Desktop\\", "result_CPU", Vertex_Set);
 }
