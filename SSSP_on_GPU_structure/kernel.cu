@@ -70,8 +70,8 @@ extern "C" void GPU_KERNEL(
 	cudaMalloc(&dest_vertex_weight_device, K * NUM_EDGE_LIST * sizeof(float));
 	cudaMalloc(&dest_vertex_weight_gathered_device, K * NUM_EDGE_LIST * sizeof(float));
 
+	// 在显存中声明结构体数组的空间
 	struct edge_in_GPU* edge_in_GPU_struct;
-	// 在显存中声明结构体指针的数组空间
 	cudaMalloc(&edge_in_GPU_struct, K * NUM_EDGE_LIST * sizeof(edge_in_GPU));
 
 	for (int i = 0; i < K; i++)
@@ -118,4 +118,5 @@ extern "C" void GPU_KERNEL(
 	cudaFree(msg_value_device);
 	cudaFree(dest_vertex_weight_device);
 	cudaFree(dest_vertex_weight_gathered_device);
+	cudaFree(edge_in_GPU_struct);
 }

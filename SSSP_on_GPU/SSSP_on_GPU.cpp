@@ -16,14 +16,14 @@ void SSSP_on_GPU(Vertex_Set_P* Vertex_Set, Edge_Set_P* Edge_Set, Msg_Set_P* Msg_
 	Vertex_Set[partition]->vertex[num_in_set]->vertex_weight = 0;
 	int num_iteration = 0;
 
-	// 使用cudaMallocHost函数创建CPU的内存空间用于接收GPU运算结果（可能传递参数时会比malloc要快一些）
+	// 使用cudaMallocHost函数创建CPU的内存空间用于接收GPU运算结果
 	float* dest_vertex_weight_gathered_host;
 	cudaMallocHost(&dest_vertex_weight_gathered_host, K * NUM_EDGE_LIST * sizeof(float));
 
 	// 创建CPU内存空间用于辅助更新顶点的last_id
 	int* src_id_host = (int*)malloc(K * NUM_EDGE_LIST * sizeof(int));
 
-	// 使用cudaMallocHost函数创建CPU的内存空间用于向GPU传递数据（可能传递参数时会比malloc要快一些）
+	// 使用cudaMallocHost函数创建CPU的内存空间用于向GPU传递数据
 	float* edge_weight_host;
 	float* src_vertex_weight_host;
 	float* dest_vertex_weight_host;
@@ -106,10 +106,10 @@ void SSSP_on_GPU(Vertex_Set_P* Vertex_Set, Edge_Set_P* Edge_Set, Msg_Set_P* Msg_
 	}
 
 	// 释放申请的CPU内存空间
-	cudaFree(dest_vertex_weight_gathered_host);
-	cudaFree(edge_weight_host);
-	cudaFree(src_vertex_weight_host);
-	cudaFree(dest_vertex_weight_host);
+	cudaFreeHost(dest_vertex_weight_gathered_host);
+	cudaFreeHost(edge_weight_host);
+	cudaFreeHost(src_vertex_weight_host);
+	cudaFreeHost(dest_vertex_weight_host);
 	free(src_id_host);
 	free(src_id_in_Vertex_Set_host);
 	free(dest_id_in_Vertex_Set_host);

@@ -10,6 +10,10 @@ gather阶段尚未尝试（相较于scatter阶段较困难），未来有时间可以一并移植到GPU上
 
 可以考虑对顶点集按出度数排序后分组，将有利于平均每个边集的边数，提高在GPU和FPGA上的并行度
 目前的按顶点编号分组的方法导致边集数量非常不平均，一些block中存在大量被浪费的thread
+
+本工程将原本的数组传递变为了结构体传递，但是这样做极大增加了数据传输的时间（每个结构体都要调用一次cudaMemcpy函数）
+同时，结构体的数据结构并不利于GPU上的线程并行访问DRAM，会使DRAM的compulsory row-conflict变为之前的两倍。
+故最终的GPU运算时间相比数组结构的版本有增加，而总运行时间（包含数据传输）则有极大的增加。
 */
 
 // 声明静态变量
@@ -34,7 +38,7 @@ int main()
 	SSSP_on_GPU(Vertex_Set, Edge_Set, Msg_Set, source_id);
 	extern float GPU_time_all;
 	printf("GPU time: %fms\n", GPU_time_all);
-	result_output("C:\\Users\\great\\Desktop\\", "result_GPU.txt", Vertex_Set);
+	result_output("C:\\Users\\great\\Desktop\\", "result_GPU", Vertex_Set);
 	SSSP_on_CPU(source_id);
-	result_output("C:\\Users\\great\\Desktop\\", "result_CPU.txt", Vertex_Set);
+	result_output("C:\\Users\\great\\Desktop\\", "result_CPU", Vertex_Set);
 }

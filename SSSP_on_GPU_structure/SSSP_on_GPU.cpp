@@ -5,11 +5,9 @@
 #include <cuda.h>
 
 extern "C" void GPU_KERNEL(float*, float*, float*, edge_in_CPU_P*, Edge_Set_P*);
-
-edge_in_CPU_P edge_in_CPU_struct[K * NUM_EDGE_LIST];
 float GPU_time_all = 0;
 
-// SSSP内核排序
+// SSSP内核
 void SSSP_on_GPU(Vertex_Set_P* Vertex_Set, Edge_Set_P* Edge_Set, Msg_Set_P* Msg_Set, int source_id)
 {
 	// 设置源顶点的权重为0
@@ -18,13 +16,14 @@ void SSSP_on_GPU(Vertex_Set_P* Vertex_Set, Edge_Set_P* Edge_Set, Msg_Set_P* Msg_
 	Vertex_Set[partition]->vertex[num_in_set]->vertex_weight = 0;
 	int num_iteration = 0;
 
-	// 创建CPU内存空间用于接收GPU运算结果
-	float* dest_vertex_weight_gathered_host = (float*)malloc(K * NUM_EDGE_LIST * sizeof(int));
+	// 使用cudaMallocHost函数创建CPU内存空间用于接收GPU运算结果
+	float* dest_vertex_weight_gathered_host;
+	cudaMallocHost(&dest_vertex_weight_gathered_host, K * NUM_EDGE_LIST * sizeof(float));
 
 	// 创建CPU内存空间用于辅助更新顶点的last_id
 	int* src_id_host = (int*)malloc(K * NUM_EDGE_LIST * sizeof(int));
 
-	// 使用cudaMallocHost函数创建CPU的内存空间用于向GPU传递数据（可能向GPU传递参数时会比malloc创建时要快一些）
+	// 使用cudaMallocHost函数创建CPU的内存空间用于向GPU传递数据
 	float* dest_vertex_weight_host;
 	cudaMallocHost(&dest_vertex_weight_host, K * NUM_EDGE_LIST * sizeof(float));
 
@@ -32,6 +31,9 @@ void SSSP_on_GPU(Vertex_Set_P* Vertex_Set, Edge_Set_P* Edge_Set, Msg_Set_P* Msg_
 	int* src_id_in_Vertex_Set_host = (int*)malloc(K * NUM_EDGE_LIST * sizeof(int));
 	int* dest_id_in_Vertex_Set_host = (int*)malloc(K * NUM_EDGE_LIST * sizeof(int));
 	int* dest_id_in_which_Vertex_Set = (int*)malloc(K * NUM_EDGE_LIST * sizeof(int));
+
+	// 在主存中声明结构体指针的数组
+	edge_in_CPU_P edge_in_CPU_struct[K * NUM_EDGE_LIST];
 
 	// 部分固定不变的数据放在循环外赋值
 	for (int i = 0; i < K; i++)
@@ -46,6 +48,8 @@ void SSSP_on_GPU(Vertex_Set_P* Vertex_Set, Edge_Set_P* Edge_Set, Msg_Set_P* Msg_
 			dest_id_in_Vertex_Set_host[num] = Edge_Set[i]->edge[j]->dest_id % M;
 			dest_id_in_which_Vertex_Set[num] = Edge_Set[i]->edge[j]->dest_id / M;
 			src_id_host[num] = Edge_Set[i]->edge[j]->scr_id;
+
+			// 使用cudaMallocHost函数创建CPU的内存空间用于向GPU传递数据
 			cudaMallocHost(&edge_in_CPU_struct[num], sizeof(struct edge_in_CPU));
 			edge_in_CPU_struct[num]->edge_weight = Edge_Set[i]->edge[j]->edge_weight;
 		}
@@ -104,8 +108,8 @@ void SSSP_on_GPU(Vertex_Set_P* Vertex_Set, Edge_Set_P* Edge_Set, Msg_Set_P* Msg_
 	}
 
 	// 释放申请的CPU内存空间
-	cudaFree(dest_vertex_weight_host);
-	free(dest_vertex_weight_gathered_host);
+	cudaFreeHost(dest_vertex_weight_host);
+	cudaFreeHost(dest_vertex_weight_gathered_host);
 	free(src_id_host);
 	free(src_id_in_Vertex_Set_host);
 	free(dest_id_in_Vertex_Set_host);
